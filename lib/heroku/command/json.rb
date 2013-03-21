@@ -11,15 +11,20 @@ class Heroku::Command::Json < Heroku::Command::Run
 
   def bootstrap
     display_header("Bootstrapping using heroku.json")
-    json = File.read('heroku.json')
-    json = JSON.parse(json)
 
-    display
-    display_table(json['addons'], json['addons'], ['Addons'])
+    begin
+      json = File.read('heroku.json')
+      json = JSON.parse(json)
 
-    if confirm_billing
-      bootstrapper = HerokuJson::Bootstrapper.new(api, safe_app, json, lambda { create_app })
-      bootstrapper.bootstrap
+      display
+      display_table(json['addons'], json['addons'], ['Addons'])
+
+      if confirm_billing
+        bootstrapper = HerokuJson::Bootstrapper.new(api, safe_app, json, lambda { create_app })
+        bootstrapper.bootstrap
+      end
+    rescue Exception => e
+      display_header("Error caught: #{e}")
     end
   end
 
